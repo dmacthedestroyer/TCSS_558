@@ -1,0 +1,13 @@
+Assignment 1
+Executive Summary 
+TCSS 558: Applied Distributed Computing, Spring 2013
+
+
+Assignment Overview
+
+(Describe your understanding of the purpose and scope of the assignment in 250 words or less. The word count is not strict, so don't worry about going slightly over.)
+
+
+Technical Impression
+
+(Describe what you have done to complete the assignment in 200-500 words. The word count is not strict, so don't worry about going slightly over. You can share your personal experiences, things that particularly frustrated you about the assignment, things that particularly interested you about the assignment, etc. It is especially important that you document any difficulties you had with tools, Java libraries, etc.)
