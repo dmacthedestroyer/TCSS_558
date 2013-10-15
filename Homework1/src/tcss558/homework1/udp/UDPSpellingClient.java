@@ -1,8 +1,6 @@
 package tcss558.homework1.udp;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -13,74 +11,54 @@ import java.net.UnknownHostException;
 import tcss558.homework1.Log;
 
 public class UDPSpellingClient {
+	private static InetSocketAddress getSocketAddress(String host, String port) throws IllegalArgumentException {
+		InetAddress hostAddress;
+
+		try {
+			hostAddress = InetAddress.getByName(host);
+		} catch (UnknownHostException e) {
+			throw new IllegalArgumentException(String.format("Host '%s' is unknown", e.getMessage()));
+		}
+
+		InetSocketAddress socketAddress;
+		try {
+			socketAddress = new InetSocketAddress(hostAddress, Integer.parseInt(port));
+		} catch (NumberFormatException nfe) {
+			throw new IllegalArgumentException("Port number must be an integer");
+		} catch (IllegalArgumentException iae) {
+			throw new IllegalArgumentException(String.format("Port number '%s' is not valid", port));
+		}
+
+		return socketAddress;
+	}
+
 	public static void main(String[] args) {
 		if (args.length < 3) {
 			printHelp();
 			return;
 		}
 
-		InetAddress host;
+		try (DatagramSocket clientSocket = new DatagramSocket()) {
+			byte[] receiveData = new byte[1024];
 
-		try {
-			host = InetAddress.getByName(args[0]);
-		} catch (UnknownHostException e) {
-			Log.err(String.format("Host '%s' is unknown", e.getMessage()));
-			return;
-		}
-
-		InetSocketAddress socketAddress;
-		try {
-			socketAddress = new InetSocketAddress(host, Integer.parseInt(args[1]));
-		} catch (NumberFormatException nfe) {
-			Log.err("Port number must be an integer");
-			return;
-		} catch (IllegalArgumentException iae) {
-			Log.err(String.format("Port number '%s' is not valid", args[1]));
-			return;
-		}
-
-		BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
-		DatagramSocket clientSocket;
-		try {
-			clientSocket = new DatagramSocket();
-		} catch (SocketException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return;
-		}
-
-		byte[] sendData = new byte[1024];
-		byte[] receiveData = new byte[1024];
-
-		for (int i = 2; i < args.length; i++) {
-			Log.out(String.format("sending word '%s'", args[i]));
-			sendData = args[i].getBytes();
-			DatagramPacket sendPacket;
-			try {
-				sendPacket = new DatagramPacket(sendData, sendData.length, socketAddress);
-			} catch (SocketException e1) {
-				e1.printStackTrace();
-				return;
-			}
-			try {
-				clientSocket.send(sendPacket);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return;
-			}
-			DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-			try {
+			for (int i = 2; i < args.length; i++) {
+				byte[] sendData = args[i].getBytes();
+				clientSocket.send(new DatagramPacket(sendData, sendData.length, getSocketAddress(args[0], args[1])));
+				
+				DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 				clientSocket.receive(receivePacket);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return;
+				System.out.println("FROM SERVER:" + new String(receivePacket.getData()));
 			}
-			String modifiedSentence = new String(receivePacket.getData());
-			System.out.println("FROM SERVER:" + modifiedSentence);
+		} catch (IllegalArgumentException iae) {
+			Log.err(iae.getMessage());
+			return;
+		} catch (SocketException e) {
+			Log.err(e.getMessage());
+			return;
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+			return;
 		}
-		clientSocket.close();
 	}
 
 	private static void printHelp() {

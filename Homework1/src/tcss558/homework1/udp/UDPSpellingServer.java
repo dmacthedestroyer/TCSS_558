@@ -12,25 +12,25 @@ import tcss558.homework1.Log;
 import tcss558.homework1.WordList;
 
 public class UDPSpellingServer {
-	public static void main(String[] args) {
-		if (args.length != 2) {
-			Log.err("todo: produce help text");
-			return;
-		}
-
+	private static InetSocketAddress getSocketAddress(String port) throws IllegalArgumentException {
 		InetSocketAddress socketAddress;
 
 		try {
-			int port = Integer.parseInt(args[0]);
-			socketAddress = new InetSocketAddress(InetAddress.getLocalHost(), port);
+			socketAddress = new InetSocketAddress(InetAddress.getLocalHost(), Integer.parseInt(port));
 		} catch (NumberFormatException nfe) {
-			Log.err("Port number must be an integer");
-			return;
+			throw new IllegalArgumentException("Port number must be an integer");
 		} catch (UnknownHostException uhe) {
-			Log.err(uhe.getMessage());
-			return;
+			throw new IllegalArgumentException(uhe.getMessage());
 		} catch (IllegalArgumentException iae) {
-			Log.err(iae.getMessage());
+			throw new IllegalArgumentException(iae.getMessage());
+		}
+
+		return socketAddress;
+	}
+
+	public static void main(String[] args) {
+		if (args.length != 2) {
+			Log.err("todo: produce help text");
 			return;
 		}
 
@@ -42,35 +42,33 @@ public class UDPSpellingServer {
 			return;
 		}
 
-		DatagramSocket serverSocket = null;
-		try {
-			serverSocket = new DatagramSocket(socketAddress);
-
-			Log.out(String.format("connected to %s", socketAddress));
+		try (DatagramSocket serverSocket = new DatagramSocket(getSocketAddress(args[0]))) {
+			Log.out(String.format("connected to %s", serverSocket.getLocalSocketAddress()));
 
 			while (true) {
-				byte[] receiveData = new byte[1024];
-				DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-				serverSocket.receive(receivePacket);
+				try {
+					byte[] receiveData = new byte[1024];
+					DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+					serverSocket.receive(receivePacket);
 
-				String sentence = new String(receivePacket.getData());
-				Log.out("RECEIVED: " + sentence);
+					String sentence = new String(receivePacket.getData());
+					Log.out("RECEIVED: " + sentence);
 
-				byte[] sendData = sentence.toUpperCase().getBytes();
+					byte[] sendData = sentence.toUpperCase().getBytes();
 
-				DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, receivePacket.getAddress(), receivePacket.getPort());
-				serverSocket.send(sendPacket);
+					DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, receivePacket.getAddress(), receivePacket.getPort());
+					serverSocket.send(sendPacket);
+				} catch (IOException ioe) {
+					Log.err(ioe.getMessage());
+					return;
+				}
 			}
+		} catch (IllegalArgumentException iae) {
+			Log.err(iae.getMessage());
+			return;
 		} catch (SocketException e) {
 			Log.err(e.getMessage());
 			return;
-		} catch (IOException ioe) {
-			Log.err(ioe.getMessage());
-			return;
-		} finally {
-			if (serverSocket != null) {
-				serverSocket.close();
-			}
 		}
 	}
 }
