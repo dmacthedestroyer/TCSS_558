@@ -53,18 +53,23 @@ public class UDPSpellingServer {
 
 						Log.out("  Word is spelled correctly.");
 					} else {
+						String logMessage = "  Word is not spelled correctly,  ";
 						Collection<String> closeWords = spellingServer.getCloseWords(input, out.size());
-
-						String logMessage = String.format("  Word is not spelled correctly.  %s suggestions:", closeWords.size());
-
 						out.writeByte(closeWords.size());
-						for (String word : closeWords) {
-							logMessage += " " + word;
-							out.write(word.getBytes(charset));
-							out.writeByte(0);
+
+						if (closeWords.size() > 0) {
+							logMessage += String.format("%s suggestions:", closeWords.size());
+							for (String word : closeWords) {
+								logMessage += " " + word;
+								out.write(word.getBytes(charset));
+								out.writeByte(0);
+							}
+							logMessage += ".";
+						} else {
+							logMessage += "no suggestions.";
 						}
 
-						Log.out(logMessage + ".");
+						Log.out(logMessage);
 					}
 					out.flush();
 
