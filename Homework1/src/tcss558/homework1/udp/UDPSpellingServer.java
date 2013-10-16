@@ -6,8 +6,6 @@ import java.net.DatagramSocket;
 import java.util.Collection;
 
 import tcss558.homework1.Log;
-import tcss558.homework1.SpellingInputStream;
-import tcss558.homework1.SpellingOutputStream;
 import tcss558.homework1.SpellingServer;
 import tcss558.homework1.SpellingServer.ArgumentException;
 

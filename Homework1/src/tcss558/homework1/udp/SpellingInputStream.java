@@ -1,4 +1,4 @@
-package tcss558.homework1;
+package tcss558.homework1.udp;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

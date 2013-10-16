@@ -6,8 +6,6 @@ import java.net.DatagramSocket;
 import tcss558.homework1.Log;
 import tcss558.homework1.SpellingClient;
 import tcss558.homework1.SpellingClientArgumentException;
-import tcss558.homework1.SpellingInputStream;
-import tcss558.homework1.SpellingOutputStream;
 
 public class UDPSpellingClient {
 	public static void main(String[] args) {
