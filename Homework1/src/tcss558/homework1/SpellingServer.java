@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.SortedSet;
 
 public class SpellingServer {
 	private int port;
@@ -38,18 +37,20 @@ public class SpellingServer {
 		return wordList.isInList(word);
 	}
 
-	public static final int MAX_CLOSE_WORDS_COUNT = 255;
-
-	public Collection<String> getCloseWords(String word) {
-		SortedSet<String> closeWords = wordList.getCloseWords(word);
-		if (closeWords.size() <= MAX_CLOSE_WORDS_COUNT) {
+	public Collection<String> getCloseWords(String word){
+		return wordList.getCloseWords(word);
+	}
+	
+	public Collection<String> getCloseWords(String word, int maxResults) {
+		Collection<String> closeWords = getCloseWords(word);
+		if (closeWords.size() <= maxResults) {
 			return closeWords;
 		}
 
-		List<String> truncatedList = new ArrayList<String>(Math.min(MAX_CLOSE_WORDS_COUNT, closeWords.size()));
+		List<String> truncatedList = new ArrayList<String>(Math.min(maxResults, closeWords.size()));
 
 		for (String closeWord : closeWords) {
-			if (truncatedList.size() >= MAX_CLOSE_WORDS_COUNT)
+			if (truncatedList.size() >= maxResults)
 				break;
 			truncatedList.add(closeWord);
 		}

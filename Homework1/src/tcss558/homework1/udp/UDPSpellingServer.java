@@ -48,7 +48,7 @@ public class UDPSpellingServer {
 							Log.out("  Word is spelled correctly.");
 						} else {
 							String logMessage = "  Word is not spelled correctly,  ";
-							Collection<String> closeWords = spellingServer.getCloseWords(input);
+							Collection<String> closeWords = spellingServer.getCloseWords(input, 255);
 							writer.writeByte(closeWords.size());
 
 							if (closeWords.size() > 0) {
