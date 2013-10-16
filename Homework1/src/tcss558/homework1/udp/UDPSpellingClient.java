@@ -1,17 +1,16 @@
 package tcss558.homework1.udp;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 
 import tcss558.homework1.Log;
 import tcss558.homework1.SpellingClient;
 import tcss558.homework1.SpellingClientArgumentException;
 import tcss558.homework1.SpellingInputStream;
+import tcss558.homework1.SpellingOutputStream;
 
 public class UDPSpellingClient {
 	public static void main(String[] args) {
@@ -31,19 +30,16 @@ public class UDPSpellingClient {
 			for (String output : client.getWords()) {
 				Log.out(String.format("Querying server (%s)", output));
 
-				Charset charset = Charset.forName("US-ASCII");
-
-				ByteArrayOutputStream sendData = new ByteArrayOutputStream();
-				DataOutputStream out = new DataOutputStream(sendData);
-				out.write(output.getBytes(charset));
-				out.writeByte(0);
-				clientSocket.send(new DatagramPacket(sendData.toByteArray(), sendData.size(), client.getAddress(), client.getPort()));
-
+				try(SpellingOutputStream writer = new SpellingOutputStream()){
+					writer.writeNullTerminatedString(output);
+					clientSocket.send(new DatagramPacket(writer.toByteArray(), writer.size(), client.getAddress(), client.getPort()));
+				}
+				
 				byte[] buf = new byte[1024];
 				DatagramPacket receivePacket = new DatagramPacket(buf, buf.length);
 				clientSocket.receive(receivePacket);
 
-				try (SpellingInputStream reader = new SpellingInputStream(new ByteArrayInputStream(Arrays.copyOf(receivePacket.getData(), receivePacket.getLength())))) {
+				try (SpellingInputStream reader = new SpellingInputStream(receivePacket)) {
 					String input = reader.readNullTerminatedString();
 					if (!output.equals(input))
 						Log.err(String.format("Received malformed packet of size %s from %s", buf.length, clientSocket.getRemoteSocketAddress()));
