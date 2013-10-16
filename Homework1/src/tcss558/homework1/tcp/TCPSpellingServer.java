@@ -7,11 +7,21 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import tcss558.homework1.Log;
+import tcss558.homework1.SpellingServer;
+import tcss558.homework1.SpellingServer.ArgumentException;
 
 public class TCPSpellingServer {
 	public static void main(String[] args) {
+		SpellingServer spellingServer;
+		try {
+			spellingServer = new SpellingServer(args);
+		} catch (ArgumentException ae) {
+			Log.err(ae.getMessage());
+			return;
+		}
+
 		while (true)
-			try (ServerSocket serverSocket = new ServerSocket(Integer.parseInt(args[0]));
+			try (ServerSocket serverSocket = new ServerSocket(spellingServer.getPort());
 					Socket connection = serverSocket.accept();
 					BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 					PrintWriter out = new PrintWriter(connection.getOutputStream(), true)) {

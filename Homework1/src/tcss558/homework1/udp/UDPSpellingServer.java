@@ -4,10 +4,20 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
 import tcss558.homework1.Log;
+import tcss558.homework1.SpellingServer;
+import tcss558.homework1.SpellingServer.ArgumentException;
 
 public class UDPSpellingServer {
 	public static void main(String[] args) {
-		try (DatagramSocket serverSocket = new DatagramSocket(Integer.parseInt(args[0]))) {
+		SpellingServer spellingServer;
+		try {
+			spellingServer = new SpellingServer(args);
+		} catch (ArgumentException ae) {
+			Log.err(ae.getMessage());
+			return;
+		}
+
+		try (DatagramSocket serverSocket = new DatagramSocket(spellingServer.getPort())) {
 			while (true)
 				try {
 					byte[] receiveData = new byte[256];
