@@ -34,25 +34,26 @@ public class SpellingServer {
 		return port;
 	}
 
-	public boolean isInList(String word){
+	public boolean isInList(String word) {
 		return wordList.isInList(word);
 	}
-	
+
 	public static final int MAX_CLOSE_WORDS_COUNT = 255;
-	public static final int MAX_UDP_DATAGRAM_SIZE = 576;
-	
-	public Collection<String> getCloseWords(String word, int currentDatagramSize){
+
+	public Collection<String> getCloseWords(String word) {
 		SortedSet<String> closeWords = wordList.getCloseWords(word);
-		
+		if (closeWords.size() <= MAX_CLOSE_WORDS_COUNT) {
+			return closeWords;
+		}
+
 		List<String> truncatedList = new ArrayList<String>(Math.min(MAX_CLOSE_WORDS_COUNT, closeWords.size()));
-		int cumulativeDatagramSize = currentDatagramSize;
-		
-		for(String closeWord : closeWords){
-			if(truncatedList.size() >= MAX_CLOSE_WORDS_COUNT || cumulativeDatagramSize + closeWord.length() + 1 > MAX_UDP_DATAGRAM_SIZE)
+
+		for (String closeWord : closeWords) {
+			if (truncatedList.size() >= MAX_CLOSE_WORDS_COUNT)
 				break;
 			truncatedList.add(closeWord);
 		}
-		
+
 		return truncatedList;
 	}
 

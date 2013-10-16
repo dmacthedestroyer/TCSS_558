@@ -27,33 +27,27 @@ public class UDPSpellingClient {
 			for (String output : client.getWords()) {
 				Log.out(String.format("Querying server (%s)", output));
 
-				try(SpellingOutputStream writer = new SpellingOutputStream()){
+				try (SpellingOutputStream writer = new SpellingOutputStream()) {
 					writer.writeNullTerminatedString(output);
 					clientSocket.send(new DatagramPacket(writer.toByteArray(), writer.size(), client.getAddress(), client.getPort()));
 				}
-				
+
 				byte[] buf = new byte[1024];
 				DatagramPacket receivePacket = new DatagramPacket(buf, buf.length);
 				clientSocket.receive(receivePacket);
 
 				try (SpellingInputStream reader = new SpellingInputStream(receivePacket)) {
-					String input = reader.readNullTerminatedString();
-					if (!output.equals(input))
-						Log.err(String.format("Received malformed packet of size %s from %s", buf.length, clientSocket.getRemoteSocketAddress()));
-					else {
+					if (output.equals(reader.readNullTerminatedString())) {
 						int suggestionCount = reader.read();
-						if (suggestionCount < 0)
-							Log.err(String.format("Received malformed packet of size %s from %s", buf.length, clientSocket.getRemoteSocketAddress()));
-						else if (suggestionCount == 0) {
+						if (suggestionCount == 0) {
 							int zeroIfSpelledCorrectly = reader.read();
-							if (zeroIfSpelledCorrectly == 0) {
+							if (zeroIfSpelledCorrectly == 0)
 								Log.out(String.format("  %s is spelled correctly.", output));
-							} else if (zeroIfSpelledCorrectly == -1) {
+							else if (zeroIfSpelledCorrectly == -1)
 								Log.out(String.format("  %s is spelled incorrectly.  There are no suggested words.", output));
-							} else {
-								Log.err(String.format("Received malformed packet of size %s from %s", buf.length, clientSocket.getRemoteSocketAddress()));
-							}
-						} else {
+							else
+								Log.err(String.format("Received malformed packet of size %s from %s'", receivePacket.getLength(), receivePacket.getSocketAddress()));
+						} else if (suggestionCount > 0) {
 							String logMessage = String.format("  %s is spelled incorrectly.  There are %s suggested words: ", output, suggestionCount);
 							String suggestion;
 							while ((suggestion = reader.readNullTerminatedString()) != null)
@@ -61,7 +55,8 @@ public class UDPSpellingClient {
 
 							Log.out(logMessage);
 						}
-					}
+					} else
+						Log.err(String.format("received unsolicited response to query for word %s from %s", output, receivePacket.getSocketAddress()));
 				}
 			}
 		} catch (Exception e) {

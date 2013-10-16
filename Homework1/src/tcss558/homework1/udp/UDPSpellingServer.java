@@ -26,7 +26,7 @@ public class UDPSpellingServer {
 			Log.out("Initilized network.  Ready for queries.");
 			while (true)
 				try {
-					byte[] buffer = new byte[576];
+					byte[] buffer = new byte[1024];
 					DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
 					serverSocket.receive(receivePacket);
 
@@ -48,7 +48,7 @@ public class UDPSpellingServer {
 							Log.out("  Word is spelled correctly.");
 						} else {
 							String logMessage = "  Word is not spelled correctly,  ";
-							Collection<String> closeWords = spellingServer.getCloseWords(input, writer.size());
+							Collection<String> closeWords = spellingServer.getCloseWords(input);
 							writer.writeByte(closeWords.size());
 
 							if (closeWords.size() > 0) {
@@ -64,11 +64,10 @@ public class UDPSpellingServer {
 
 							Log.out(logMessage);
 						}
-						
-						DatagramPacket sendPacket = new DatagramPacket(writer.toByteArray(), writer.size(), receivePacket.getAddress(), receivePacket.getPort());
-						serverSocket.send(sendPacket);
+
+						serverSocket.send(new DatagramPacket(writer.toByteArray(), writer.size(), receivePacket.getAddress(), receivePacket.getPort()));
 					}
-					
+
 					Log.out("Response sent.");
 				} catch (Exception e) {
 					e.printStackTrace();
