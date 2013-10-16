@@ -1,7 +1,12 @@
 package tcss558.homework1.udp;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.net.BindException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.nio.charset.Charset;
+import java.util.Collection;
 
 import tcss558.homework1.Log;
 import tcss558.homework1.SpellingServer;
@@ -18,23 +23,60 @@ public class UDPSpellingServer {
 		}
 
 		try (DatagramSocket serverSocket = new DatagramSocket(spellingServer.getPort())) {
+			Log.out(String.format("Datagram socket opened on port %s", serverSocket.getLocalPort()));
+			Log.out("Initilized network.  Ready for queries.");
 			while (true)
 				try {
-					byte[] receiveData = new byte[256];
-					DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+					byte[] buffer = new byte[576];
+					DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
 					serverSocket.receive(receivePacket);
 
-					String input = new String(receivePacket.getData()).trim();
-					String output = input.toUpperCase();
+					Log.out(String.format("Query received from %s", receivePacket.getAddress()));
 
-					Log.out(input + " -> " + output);
+					byte[] receiveData = receivePacket.getData();
+					int nullTerminator;
+					for (nullTerminator = 0; nullTerminator < receiveData.length && receiveData[nullTerminator] != 0; nullTerminator++) {
+					}
 
-					byte[] sendData = output.getBytes();
-					DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, receivePacket.getAddress(), receivePacket.getPort());
+					Charset charset = Charset.forName("US-ASCII");
+					String input = new String(receiveData, 0, nullTerminator, charset);
+
+					Log.out(String.format("  Query word: %s", input));
+
+					ByteArrayOutputStream sendData = new ByteArrayOutputStream();
+					DataOutputStream out = new DataOutputStream(sendData);
+					out.write(input.getBytes(charset));
+					out.writeByte(0);
+					if (spellingServer.isInList(input)) {
+						out.writeByte(0);
+						out.writeByte(0);
+
+						Log.out("  Word is spelled correctly.");
+					} else {
+						Collection<String> closeWords = spellingServer.getCloseWords(input, out.size());
+
+						String logMessage = String.format("  Word is not spelled correctly.  %s suggestions:", closeWords.size());
+
+						out.writeByte(closeWords.size());
+						for (String word : closeWords) {
+							logMessage += " " + word;
+							out.write(word.getBytes(charset));
+							out.writeByte(0);
+						}
+
+						Log.out(logMessage + ".");
+					}
+					out.flush();
+
+					DatagramPacket sendPacket = new DatagramPacket(sendData.toByteArray(), sendData.size(), receivePacket.getAddress(), receivePacket.getPort());
 					serverSocket.send(sendPacket);
+
+					Log.out("Response sent.");
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+		} catch (BindException be) {
+			Log.err(be.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
