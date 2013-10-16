@@ -47,7 +47,7 @@ public class TCPSpellingServer {
 							}
 
 							String word = st.nextToken();
-							Log.out(String.format("  Query word: %s", word));
+							Log.out(String.format("Query word: %s", word));
 							if (spellingServer.isInList(word)) {
 								Log.out("  Word is spelled correctly");
 								out.println(String.format("%s OK", id));

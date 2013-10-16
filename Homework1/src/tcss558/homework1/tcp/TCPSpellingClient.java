@@ -10,14 +10,13 @@ import java.util.StringTokenizer;
 
 import tcss558.homework1.Log;
 import tcss558.homework1.SpellingClient;
-import tcss558.homework1.SpellingClientArgumentException;
 
 public class TCPSpellingClient {
 	public static void main(String[] args) {
 		SpellingClient client;
 		try {
 			client = new SpellingClient(args);
-		} catch (SpellingClientArgumentException e) {
+		} catch (IllegalArgumentException e) {
 			Log.err(e.getMessage());
 			return;
 		}

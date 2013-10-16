@@ -8,39 +8,35 @@ public class SpellingClient {
 	private InetAddress address;
 	private int port;
 	private Iterable<String> words;
-	
-	private SpellingClientArgumentException createException(String message, Throwable cause) {
-		return new SpellingClientArgumentException(message, cause);
-	}
 
-	public SpellingClient(String[] args) throws SpellingClientArgumentException {
+	public SpellingClient(String[] args) throws IllegalArgumentException {
 		if (args.length < 3)
-			throw new IllegalArgumentException("usage: bla bla bla");
+			throw new IllegalArgumentException("Usage: java TCPClient <hostname> <port> <word> [<word> ...]");
 
 		try {
 			address = InetAddress.getByName(args[0]);
 		} catch (UnknownHostException uhe) {
-			throw createException(String.format("host '%s' is unreachable", args[0]), uhe);
+			throw new IllegalArgumentException(String.format("host '%s' is unreachable", args[0]), uhe);
 		}
 
 		try {
 			port = Integer.parseInt(args[1]);
 		} catch (NumberFormatException nfe) {
-			throw createException("port number must be an integer", nfe);
+			throw new IllegalArgumentException("port number must be an integer", nfe);
 		}
 
 		words = Arrays.asList(Arrays.copyOfRange(args, 2, args.length));
 	}
-	
-	public InetAddress getAddress(){
+
+	public InetAddress getAddress() {
 		return address;
 	}
-	
-	public int getPort(){
+
+	public int getPort() {
 		return port;
 	}
-	
-	public Iterable<String> getWords(){
+
+	public Iterable<String> getWords() {
 		return words;
 	}
 }
