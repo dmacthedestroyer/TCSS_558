@@ -1,10 +1,7 @@
 package tcss558.homework1.udp;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.nio.charset.Charset;
 
 import tcss558.homework1.Log;
 import tcss558.homework1.SpellingClient;
