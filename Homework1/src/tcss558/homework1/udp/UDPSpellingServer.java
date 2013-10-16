@@ -31,7 +31,7 @@ public class UDPSpellingServer {
 					DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
 					serverSocket.receive(receivePacket);
 
-					Log.out(String.format("Query received from %s", receivePacket.getAddress()));
+					Log.out(String.format("Query received from %s", receivePacket.getSocketAddress()));
 
 					byte[] receiveData = receivePacket.getData();
 					int nullTerminator;
