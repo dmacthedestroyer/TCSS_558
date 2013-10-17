@@ -4,10 +4,44 @@ TCSS 558: Applied Distributed Computing, Spring 2013
 
 
 Assignment Overview
+The purpose of this assignment is to gain experience working with
+protocols from within the OSI Transport layer by implementing a simple
+spell checking program on top of two different protocols: TCP and UDP.
 
-(Describe your understanding of the purpose and scope of the assignment in 250 words or less. The word count is not strict, so don't worry about going slightly over.)
+We were to build four programs, a client and server for each protocol, 
+that would be based upon a predetermined format for communication so 
+that the actual client and server implementations for each protocol 
+can be interchangeable.  This provided the opportunity to experience 
+writing programs that need to conform to an application-level protocol 
+while also learning how to work with lower-level protocols that are in 
+common use in the real world.
 
 
 Technical Impression
+I've created the four programs as outlined in the requirements, and a 
+handful of other files for places where similar logic is shared.  I extracted 
+most of the input sanitation from the command-line arguments into two classes,
+one for the server implementations and one for the client implementations.  
+Since the arguments being passed into each version of the server and client 
+are identical, this made the most sense.
 
-(Describe what you have done to complete the assignment in 200-500 words. The word count is not strict, so don't worry about going slightly over. You can share your personal experiences, things that particularly frustrated you about the assignment, things that particularly interested you about the assignment, etc. It is especially important that you document any difficulties you had with tools, Java libraries, etc.)
+For the TCP version, I encapsulated some of the logic for writing to the output 
+stream so that I could do so more easily without worrying about appending new 
+line characters or flushing the stream.  Otherwise, handling the Java TCP 
+classes was a pretty straightforward line-based text parsing and stream 
+writing exercise.
+
+For the UDP version, I had to encapsulate logic for both reading from and 
+writing to the datagrams.  This was a bit more challenging, since more care 
+had to go into ensuring the format of the packets were correct, and the 
+format was more low-level than the model for the TCP portion of the assignment.
+
+I found the UDP portion of the assignment to be more difficult to work with than
+the TCP portion.  Dealing with byte values instead of string values adds 
+much more complexity, and the Java API for sending and receiving datagrams 
+seemed unintuitive, since you have to handle these byte array buffers, yet the 
+packets being used to send and receive contain methods that give you access 
+to the data without any need for using the buffers.  It seemed like an 
+imperfect abstraction on the process that left ambiguity in terms of what the 
+proper way to handle networking with UDP is, which left me feeling less 
+confident in my solution.
