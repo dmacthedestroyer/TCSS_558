@@ -2,7 +2,6 @@ package tcss558.homework1.tcp;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -28,7 +27,7 @@ public class TCPSpellingServer {
 			while (true)
 				try (Socket connection = serverSocket.accept();
 						BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-						PrintWriter out = new PrintWriter(connection.getOutputStream(), true)) {
+						TCPSpellingWriter out = new TCPSpellingWriter(connection.getOutputStream())) {
 					Log.out(String.format("Accepted connection from %s", connection.getRemoteSocketAddress()));
 
 					String input;
@@ -41,7 +40,7 @@ public class TCPSpellingServer {
 								id = Integer.parseInt(st.nextToken());
 							} catch (NumberFormatException nfe) {
 								Log.err("Received malformed query (no query number)");
-								out.println("INVALID");
+								out.writeLine("INVALID");
 								connection.close();
 								continue;
 							}
@@ -50,7 +49,7 @@ public class TCPSpellingServer {
 							Log.out(String.format("Query word: %s", word));
 							if (spellingServer.isInList(word)) {
 								Log.out("  Word is spelled correctly");
-								out.println(String.format("%s OK", id));
+								out.writeLine(String.format("%s OK", id));
 							} else {
 								String logMessage = "  Word is spelled incorrectly, ";
 								String response = String.format("%s NO", id);
@@ -65,16 +64,16 @@ public class TCPSpellingServer {
 								} else
 									logMessage += "no suggestions.";
 								Log.out(logMessage);
-								out.println(response);
+								out.writeLine(response);
 							}
 						} else {
 							Log.err("Received malformed query (wrong number of arguments)");
-							out.println("INVALID");
+							out.writeLine("INVALID");
 							connection.close();
 							continue;
 						}
 					}
-					out.println("GOODBYE");
+					out.writeLine("GOODBYE");
 					connection.close();
 					Log.out("Connection closed normally.");
 				} catch (Exception e) {

@@ -2,7 +2,6 @@ package tcss558.homework1.tcp;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +21,7 @@ public class TCPSpellingClient {
 		}
 
 		try (Socket clientSocket = new Socket(client.getAddress(), client.getPort());
-				PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+				TCPSpellingWriter out = new TCPSpellingWriter(clientSocket.getOutputStream());
 				BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));) {
 			Log.out(String.format("Socket opened on port %s", clientSocket.getPort()));
 			clientSocket.setSoTimeout(1000);
@@ -31,12 +30,12 @@ public class TCPSpellingClient {
 			for (String output : client.getWords()) {
 				try {
 					Log.out(String.format("Querying server (%s)", output));
-					out.println(String.format("%s %s", i, output));
+					out.writeLine(String.format("%s %s", i, output));
 					StringTokenizer input = new StringTokenizer(in.readLine(), " ");
 
 					if (input.countTokens() >= 2) {
 						String id = input.nextToken();
-						if (id.equals(""+i)) {
+						if (id.equals("" + i)) {
 							String status = input.nextToken();
 							if (status.equals("OK"))
 								Log.out(String.format("  %s is spelled correctly.", output));
@@ -64,7 +63,7 @@ public class TCPSpellingClient {
 				}
 				i++;
 			}
-			out.println();
+			out.writeLine();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
