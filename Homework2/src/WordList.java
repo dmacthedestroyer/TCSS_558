@@ -1,5 +1,3 @@
-package tcss558.homework2;
-
 /*
  * Spring 2013 TCSS 558 - Applied Distributed Computing
  * Institute of Technology, UW Tacoma
