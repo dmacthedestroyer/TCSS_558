@@ -38,7 +38,7 @@ public class ConcurrentTCPSpellingServer {
 
 		int maxConcurrentSessions;
 		if (args.length < 3)
-			maxConcurrentSessions = 1000;
+			maxConcurrentSessions = 10;
 		else
 			try {
 				maxConcurrentSessions = Integer.parseInt(args[2]);
@@ -83,6 +83,7 @@ public class ConcurrentTCPSpellingServer {
 	}
 
 	public void run() {
+		Log.out("Starting server with %d concurrent connections", getMaxConcurrentSessions());
 		try (ServerSocket serverSocket = new ServerSocket(getPort())) {
 			while (true) {
 				Log.out(String.format("Server socket opened on port %s", serverSocket.getLocalPort()));
