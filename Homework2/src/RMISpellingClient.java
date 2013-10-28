@@ -1,42 +1,50 @@
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.rmi.ConnectException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.SortedSet;
 
+import sun.tools.jar.CommandLine;
+
 public class RMISpellingClient {
-	public static void main(String[] args) throws RemoteException {
-		RMISpellingClient client;
+	public static void main(String[] args) {
 		try {
-			client = RMISpellingClient.newRMISPellingClient(args);
-		} catch (IllegalArgumentException iae) {
-			Log.err(iae.getMessage());
-			return;
-		}
+			RMISpellingClient client = RMISpellingClient.newRMISPellingClient(args);
 
-		RemoteSpelling rs = client.getRemoteSpelling();
-
-		for (int i = 3; i < args.length; i++) {
-			String s = args[i];
-			Log.out("Querying service for %s", s);
-			SortedSet<String> result = rs.check(s);
-			if (result == null)
-				Log.out("%s is spelled correctly", s);
-			else
-			{
-				String prefix = String.format("%s is spelled incorrectly, ", s);
-				if(result.size() == 0)
-					Log.out(prefix + "no suggestions.");
-				else Log.out(prefix + "suggestions: " + Utility.join(result, ", "));
+			for (int i = 3; i < args.length; i++) {
+				String s = args[i];
+				Log.out("Querying service for %s", s);
+				SortedSet<String> result = client.check(s);
+				if (result == null)
+					Log.out("%s is spelled correctly", s);
+				else {
+					String prefix = String.format("%s is spelled incorrectly, ", s);
+					if (result.size() == 0)
+						Log.out(prefix + "no suggestions.");
+					else
+						Log.out(prefix + "suggestions: " + Utility.join(result, ", "));
+				}
 			}
+		} catch (ConnectException ce) {
+			Log.err("Connection to server could not be established");
+		}catch(IllegalArgumentException iae){
+			Log.err(iae.getMessage());
+			Log.out(CommandLineInstructions);
+		}
+		catch (Exception e) {
+			Log.err(e.getMessage());
+			return;
 		}
 	}
 
-	public static RMISpellingClient newRMISPellingClient(String[] args) throws IllegalArgumentException {
+	public final static String CommandLineInstructions = "Usage: java RMISpellingClient <hostname> <port> <service-name> <word> [<word> ...]";
+	
+	public static RMISpellingClient newRMISPellingClient(String[] args) throws IllegalArgumentException, RemoteException, NotBoundException {
 		if (args.length < 4)
-			throw new IllegalArgumentException("Usage: java RMISpellingClient <hostname> <port> <service-name> <word> [<word> ...]");
+			throw new IllegalArgumentException("Invalid command line options");
 
 		InetAddress address;
 		try {
@@ -57,7 +65,7 @@ public class RMISpellingClient {
 		return newRMISPellingClient(address, port, registeredName);
 	}
 
-	public static RMISpellingClient newRMISPellingClient(InetAddress hostAddress, int hostPort, String spellingServiceRegisteredName) {
+	public static RMISpellingClient newRMISPellingClient(InetAddress hostAddress, int hostPort, String spellingServiceRegisteredName) throws RemoteException, NotBoundException {
 		if (hostPort < 0 || hostPort > 65535) {
 			throw new IllegalArgumentException("port number must be between 0 and 65535");
 		}
@@ -65,31 +73,15 @@ public class RMISpellingClient {
 		return new RMISpellingClient(hostAddress, hostPort, spellingServiceRegisteredName);
 	}
 
-	private RMISpellingClient(InetAddress hostAddress, int hostPort, String spellingServiceRegisteredName) {
-		this.address = hostAddress;
-		this.hostPort = hostPort;
-		this.spellingServiceRegisteredName = spellingServiceRegisteredName;
-
-		try {
-			Registry registry = LocateRegistry.getRegistry(hostAddress.getHostName(), hostPort);
-			remoteSpelling = (RemoteSpelling) registry.lookup(spellingServiceRegisteredName);
-		} catch (NotBoundException e) {
-			Log.err("Service '%s' is not bound to host '%s:%s'", spellingServiceRegisteredName, hostAddress, hostPort);
-		} catch (RemoteException re) {
-			re.printStackTrace();
-		}
+	private RMISpellingClient(InetAddress hostAddress, int hostPort, String spellingServiceRegisteredName) throws RemoteException, NotBoundException {
+		Registry registry = LocateRegistry.getRegistry(hostAddress.getHostName(), hostPort);
+		remoteSpelling = (RemoteSpelling) registry.lookup(spellingServiceRegisteredName);
 	}
-
-	private final InetAddress address;
-
-	private final int hostPort;
-
-	private final String spellingServiceRegisteredName;
 
 	private RemoteSpelling remoteSpelling;
 
-	public RemoteSpelling getRemoteSpelling() {
-		return remoteSpelling;
+	public SortedSet<String> check(String word) throws RemoteException {
+		return remoteSpelling.check(word);
 	}
 
 	public void QueryWord(String word) {
