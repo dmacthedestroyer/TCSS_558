@@ -24,7 +24,7 @@ public class TCPSpellingWorker implements Runnable {
 	@Override
 	public void run() {
 		try (BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-				PrintWriter out = new PrintWriter(new OutputStreamWriter(new BufferedOutputStream(socket.getOutputStream()), Charset.forName("US-ASCII")))) {
+				PrintWriter out = new PrintWriter(new OutputStreamWriter(new BufferedOutputStream(socket.getOutputStream()), Charset.forName("US-ASCII")), true)) {
 			String input;
 
 			while (!socket.isClosed() && (input = "" + in.readLine()).length() > 0) {
@@ -60,7 +60,7 @@ public class TCPSpellingWorker implements Runnable {
 						} else
 							logMessage += "no suggestions.";
 						Log.out(logMessage);
-						out.println();
+						out.println("");
 					}
 				} else {
 					Log.err("Received malformed query (wrong number of arguments)");

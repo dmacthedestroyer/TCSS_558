@@ -86,10 +86,9 @@ public class ConcurrentTCPSpellingServer {
 		try (ServerSocket serverSocket = new ServerSocket(getPort())) {
 			while (true) {
 				Log.out(String.format("Server socket opened on port %s", serverSocket.getLocalPort()));
-				try (Socket socket = serverSocket.accept()) {
-					Log.out(String.format("Accepted connection from %s", socket.getRemoteSocketAddress()));
-					threadPool.execute(new TCPSpellingWorker(wordList, socket));
-				}
+				Socket socket = serverSocket.accept();
+				Log.out(String.format("Accepted connection from %s", socket.getRemoteSocketAddress()));
+				threadPool.execute(new TCPSpellingWorker(wordList, socket));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
