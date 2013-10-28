@@ -6,19 +6,45 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * This class is a TCP server that implements the TCSS598 Spelling Protocol. It
+ * allows a specified number of concurrent connections to access the service, or
+ * 10 if no specific limit is provided.
+ * 
+ * If the number of concurrent connections exceed the maximul allowed, the rest
+ * will queue up and be served when available.
+ * 
+ * @author dmac
+ * 
+ */
 public class ConcurrentTCPSpellingServer {
+	/**
+	 * usage: java ConcurrentTCPSpellingServer <port> <file location> [<max
+	 * connections>]
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		try {
-			ConcurrentTCPSpellingServer server = buildServer(args);
+			ConcurrentTCPSpellingServer server = newServer(args);
 			server.run();
 		} catch (IllegalArgumentException iae) {
 			Log.err(iae.getMessage());
 		}
 	}
 
-	public static ConcurrentTCPSpellingServer buildServer(String[] args) throws IllegalArgumentException {
+	/**
+	 * Builds a {@link ConcurrentTCPSpellingServer} object while validating inputs
+	 * 
+	 * @param args
+	 *          command-line parameters
+	 * @return the ConcurrentTCPSpellingServer object
+	 * @throws IllegalArgumentException
+	 *           The human-readable message with validation errors
+	 */
+	public static ConcurrentTCPSpellingServer newServer(String[] args) throws IllegalArgumentException {
 		if (args.length < 2)
-			throw new IllegalArgumentException("usage: todo");
+			throw new IllegalArgumentException("usage: java ConcurrentTCPSpellingServer <port> <file location> [<max connections>]");
 
 		int port;
 		try {
@@ -46,10 +72,21 @@ public class ConcurrentTCPSpellingServer {
 				throw new IllegalArgumentException("Connection count limit must be an integer");
 			}
 
-		return buildServer(port, wordList, maxConcurrentSessions);
+		return newServer(port, wordList, maxConcurrentSessions);
 	}
 
-	public static ConcurrentTCPSpellingServer buildServer(int port, WordList wordList, int maxConcurrentSessions) {
+	/**
+	 * Builds a {@link ConcurrentTCPSpellingServer} object while validating inputs
+	 * 
+	 * @param port
+	 *          the port number to connect to
+	 * @param wordList
+	 *          the dictionary
+	 * @param maxConcurrentSessions
+	 *          total number of concurrent sessions allowed.
+	 * @return
+	 */
+	public static ConcurrentTCPSpellingServer newServer(int port, WordList wordList, int maxConcurrentSessions) {
 		if (port < 0 || port > 65535) {
 			throw new IllegalArgumentException("port number must be between 0 and 65535");
 		}
@@ -82,6 +119,9 @@ public class ConcurrentTCPSpellingServer {
 		return maxConcurrentSessions;
 	}
 
+	/**
+	 * Runs the server indefinitely
+	 */
 	public void run() {
 		Log.out("Starting server with %d concurrent connections", getMaxConcurrentSessions());
 		try (ServerSocket serverSocket = new ServerSocket(getPort())) {

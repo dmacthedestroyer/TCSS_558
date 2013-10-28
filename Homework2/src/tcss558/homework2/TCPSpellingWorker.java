@@ -10,17 +10,30 @@ import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.StringTokenizer;
 
+/**
+ * Manages the TCSS Spelling Protocol for a single TCP socket connection to a client.
+ * @author dmac
+ *
+ */
 public class TCPSpellingWorker implements Runnable {
 
-	private Socket socket;
+	private final Socket socket;
 
-	private WordList wordList;
+	private final WordList wordList;
 
+	/**
+	 * Creates a new TCPSpellingWorker with the given dictionary and socket connection.
+	 * @param wordList
+	 * @param socket
+	 */
 	public TCPSpellingWorker(WordList wordList, Socket socket) {
 		this.wordList = wordList;
 		this.socket = socket;
 	}
 
+	/**
+	 * Reads in lines from the client socket as outlined in the TCSS 598 Spelling Protocol, and terminates when the connection is closed.
+	 */
 	@Override
 	public void run() {
 		try (BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));

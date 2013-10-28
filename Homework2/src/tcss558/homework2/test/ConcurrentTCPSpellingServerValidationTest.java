@@ -7,27 +7,27 @@ import tcss558.homework2.ConcurrentTCPSpellingServer;
 public class ConcurrentTCPSpellingServerValidationTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldThrowIllegalArgumentExceptionWhenArgsEmpty() {
-		ConcurrentTCPSpellingServer.buildServer(new String[0]);
+		ConcurrentTCPSpellingServer.newServer(new String[0]);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldThrowIllegalArgumentExceptionWhenArgsLength1() {
-		ConcurrentTCPSpellingServer.buildServer(new String[] { "12500" });
+		ConcurrentTCPSpellingServer.newServer(new String[] { "12500" });
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldThrowIllegalArgumentExceptionWhenPortNumberMalformed() {
-		ConcurrentTCPSpellingServer.buildServer(new String[] { "1250f", "test" });
+		ConcurrentTCPSpellingServer.newServer(new String[] { "1250f", "test" });
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldThrowIllegalArgumentExceptionWhenPortNumberExceedRange() {
-		ConcurrentTCPSpellingServer.buildServer(new String[] { "65536", "test" });
+		ConcurrentTCPSpellingServer.newServer(new String[] { "65536", "test" });
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldThrowIllegalArgumentExceptionWhenPortNumberLTZero() {
-		ConcurrentTCPSpellingServer.buildServer(new String[] { "-1", "test" });
+		ConcurrentTCPSpellingServer.newServer(new String[] { "-1", "test" });
 	}
 
 	@Test(expected = IllegalArgumentException.class)
