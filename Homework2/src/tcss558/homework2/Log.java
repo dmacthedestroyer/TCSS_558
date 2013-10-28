@@ -49,6 +49,15 @@ public final class Log
   }
   
   /**
+   * Pring a formatted log message to standard output.
+   * @param the_message The log message
+   * @param args Arguments referenced by the format specifiers in the format string. If there are more arguments than format specifiers, the extra arguments are ignored. The number of arguments is variable and may be zero. The maximum number of arguments is limited by the maximum dimension of a Java array as defined by The Java™ Virtual Machine Specification. The behaviour on a null argument depends on the conversion.
+   */
+  public static synchronized void out(final String the_message, Object... args){
+  	System.out.println(String.format(the_message,  args));
+  }
+  
+  /**
    * Print a log message to standard error.
    * 
    * @param the_message The log message.
