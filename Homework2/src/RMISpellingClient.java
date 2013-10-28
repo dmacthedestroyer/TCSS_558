@@ -7,8 +7,6 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.SortedSet;
 
-import sun.tools.jar.CommandLine;
-
 public class RMISpellingClient {
 	public static void main(String[] args) {
 		try {
@@ -30,18 +28,19 @@ public class RMISpellingClient {
 			}
 		} catch (ConnectException ce) {
 			Log.err("Connection to server could not be established");
-		}catch(IllegalArgumentException iae){
+		} catch (IllegalArgumentException iae) {
 			Log.err(iae.getMessage());
 			Log.out(CommandLineInstructions);
-		}
-		catch (Exception e) {
-			Log.err(e.getMessage());
+		} catch (NotBoundException nbe) {
+			Log.err("The registry '%s' is not bound", nbe.getMessage());
+		} catch (Exception e) {
+			e.printStackTrace();
 			return;
 		}
 	}
 
 	public final static String CommandLineInstructions = "Usage: java RMISpellingClient <hostname> <port> <service-name> <word> [<word> ...]";
-	
+
 	public static RMISpellingClient newRMISPellingClient(String[] args) throws IllegalArgumentException, RemoteException, NotBoundException {
 		if (args.length < 4)
 			throw new IllegalArgumentException("Invalid command line options");
