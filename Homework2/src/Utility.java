@@ -6,9 +6,9 @@ public class Utility {
 
 		Boolean firstElement = true;
 		for (T t : collection) {
-			out += t;
 			if (!firstElement)
 				out += separator;
+			out += t;
 			firstElement = false;
 		}
 
