@@ -73,17 +73,17 @@ public class RMISpellingClient {
 	}
 
 	private RMISpellingClient(InetAddress hostAddress, int hostPort, String spellingServiceRegisteredName) throws RemoteException, NotBoundException {
-		Registry registry = LocateRegistry.getRegistry(hostAddress.getHostName(), hostPort);
-		remoteSpelling = (RemoteSpelling) registry.lookup(spellingServiceRegisteredName);
+		remoteSpelling = getRemoteSpellingFromRMI(hostAddress.getHostName(), hostPort, spellingServiceRegisteredName);
+	}
+
+	public static RemoteSpelling getRemoteSpellingFromRMI(String hostName, int hostPort, String spellingServiceRegisteredName) throws RemoteException, NotBoundException {
+		Registry registry = LocateRegistry.getRegistry(hostName, hostPort);
+		return (RemoteSpelling) registry.lookup(spellingServiceRegisteredName);
 	}
 
 	private RemoteSpelling remoteSpelling;
 
 	public SortedSet<String> check(String word) throws RemoteException {
 		return remoteSpelling.check(word);
-	}
-
-	public void QueryWord(String word) {
-		Log.out("todo: query the word");
 	}
 }

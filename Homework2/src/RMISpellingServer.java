@@ -5,18 +5,15 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.SortedSet;
 
-public class RMISpellingServer implements RemoteSpelling {
+public class RMISpellingServer implements RemoteSpelling, Runnable {
 
 	public static void main(String[] args) {
 		try {
-		RMISpellingServer server = newRMISpellingServer(args);
+			RMISpellingServer server = newRMISpellingServer(args);
 			server.run();
-		}catch (IllegalArgumentException iae){
+		} catch (IllegalArgumentException iae) {
 			Log.err(iae.getMessage());
 			Log.out(CommandLineInstructions);
-		}
-		catch (RemoteException e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -70,15 +67,16 @@ public class RMISpellingServer implements RemoteSpelling {
 	@Override
 	public SortedSet<String> check(String the_word) throws RemoteException {
 		synchronized (wordList) {
-			if (wordList.isInList(the_word)){
+			if (wordList.isInList(the_word)) {
 				Log.out("%s is spelled correctly", the_word);
 				return null;
 			}
 			String prefix = String.format("%s is spelled incorrectly, ", the_word);
 			SortedSet<String> closeWords = wordList.getCloseWords(the_word);
-			if(closeWords.size() == 0)
+			if (closeWords.size() == 0)
 				Log.out(prefix + "no suggestions");
-			else Log.out(prefix + "suggestions: " + Utility.join(closeWords, ", "));
+			else
+				Log.out(prefix + "suggestions: " + Utility.join(closeWords, ", "));
 			return closeWords;
 		}
 	}
@@ -95,9 +93,13 @@ public class RMISpellingServer implements RemoteSpelling {
 		Log.out("'%s' has been removed from the dictionary", the_word);
 	}
 
-	public void run() throws RemoteException {
-		Registry registry = LocateRegistry.createRegistry(port);
-		registry.rebind(registeredName, UnicastRemoteObject.exportObject(this, 0));
-		Log.out("Exported spelling service as '%s' on registry port %s", registeredName, port);
+	public void run() {
+		try {
+			Registry registry = LocateRegistry.createRegistry(port);
+			registry.rebind(registeredName, UnicastRemoteObject.exportObject(this, 0));
+			Log.out("Exported spelling service as '%s' on registry port %s", registeredName, port);
+		} catch (RemoteException re) {
+			re.printStackTrace();
+		}
 	}
 }
