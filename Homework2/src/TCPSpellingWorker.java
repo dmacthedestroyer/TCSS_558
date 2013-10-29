@@ -30,14 +30,14 @@ public class TCPSpellingWorker implements Runnable {
 		Log.err("" + id + ": " + message);
 	}
 
-	private void out(String message) {
+	private void log(String message) {
 		Log.out("" + id + ": " + message);
 	}
 
-	private void out(String message, Object... args){
+	private void log(String message, Object... args) {
 		Log.out(message, args);
 	}
-	
+
 	/**
 	 * Creates a new TCPSpellingWorker with the given dictionary and socket
 	 * connection.
@@ -57,28 +57,34 @@ public class TCPSpellingWorker implements Runnable {
 	 */
 	@Override
 	public void run() {
-		Log.out("Connected to client with id ", id);
+		Log.out("Connected to client with id %s", id);
 		try (BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				PrintWriter out = new PrintWriter(new OutputStreamWriter(new BufferedOutputStream(socket.getOutputStream()), Charset.forName("US-ASCII")), true)) {
 			String input;
 
-			while (!socket.isClosed() && (input = "" + in.readLine()).length() > 0) {
+			while (!socket.isClosed() && (input = in.readLine()).length() > 0) {
 				StringTokenizer st = new StringTokenizer(input, " ");
 				if (st.countTokens() == 2) {
 					int id;
 					try {
 						id = Integer.parseInt(st.nextToken());
 					} catch (NumberFormatException nfe) {
-						err("Received malformed query (no query number)");
+						err("Received malformed query (no id)");
 						out.println("INVALID");
 						socket.close();
-						continue;
+						return;
+					}
+					if (id < 0) {
+						err("Received malformed query (id < 0)");
+						out.println("INVALID");
+						socket.close();
+						return;
 					}
 
 					String word = st.nextToken();
-					out("Query word: %s", word);
+					log("Query word: %s", word);
 					if (wordList.isInList(word)) {
-						out("  Word is spelled correctly");
+						log("  Word is spelled correctly");
 						out.println(String.format("%s OK", id));
 					} else {
 						String logMessage = "  Word is spelled incorrectly, ";
@@ -94,19 +100,19 @@ public class TCPSpellingWorker implements Runnable {
 							logMessage += ".";
 						} else
 							logMessage += "no suggestions.";
-						out(logMessage);
+						log(logMessage);
 						out.println("");
 					}
 				} else {
 					err("Received malformed query (wrong number of arguments)");
 					out.println("INVALID");
 					socket.close();
-					continue;
+					return;
 				}
 			}
 			out.println("GOODBYE");
 			socket.close();
-			out("Connection closed normally.");
+			Log.out("Connection closed normally.");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
