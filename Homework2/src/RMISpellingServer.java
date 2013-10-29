@@ -5,6 +5,14 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.SortedSet;
 
+/**
+ * Implements the TCSS 598 Spelling Protocol using Java RMI technology. It
+ * provides the necessary functionality to check, add and remove words to/from
+ * the provided dictionary.
+ * 
+ * @author dmac
+ * 
+ */
 public class RMISpellingServer implements RemoteSpelling, Runnable {
 
 	public static void main(String[] args) {
@@ -17,8 +25,17 @@ public class RMISpellingServer implements RemoteSpelling, Runnable {
 		}
 	}
 
+	/**
+	 * Basic output for posting instructions on command-line use.
+	 */
 	public final static String CommandLineInstructions = "Usage: java RMISpellingClient <port> <service-name> <word-list>";
 
+	/**
+	 * Creates a new instance of the RMISpellingServer with a method signature useful for command-line applications.
+	 * @param args array on inputs required to properly start the server
+	 * @return the RMISpellingServer instance
+	 * @throws IllegalArgumentException if the args are entered incorrectly
+	 */
 	public static RMISpellingServer newRMISpellingServer(String[] args) throws IllegalArgumentException {
 		if (args.length != 3)
 			throw new IllegalArgumentException("Invalid command line options");
@@ -44,6 +61,14 @@ public class RMISpellingServer implements RemoteSpelling, Runnable {
 		return newRMISpellingServer(port, registeredName, wordList);
 	}
 
+	/**
+	 * Creates a new instance of the RMISpellingServer
+	 * @param port the port number that the server should connect to
+	 * @param registeredName the name that the RMI server should be published to
+	 * @param wordList the dictionary the server will use to check words
+	 * @return the RMISpellingServer instance
+	 * @throws IllegalArgumentException if port number is invalid
+	 */
 	public static RMISpellingServer newRMISpellingServer(int port, String registeredName, WordList wordList) throws IllegalArgumentException {
 		if (port < 0 || port > 65535) {
 			throw new IllegalArgumentException("port number must be between 0 and 65535");
@@ -93,6 +118,7 @@ public class RMISpellingServer implements RemoteSpelling, Runnable {
 		Log.out("'%s' has been removed from the dictionary", the_word);
 	}
 
+	@Override
 	public void run() {
 		try {
 			Registry registry = LocateRegistry.createRegistry(port);

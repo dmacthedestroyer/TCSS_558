@@ -7,6 +7,11 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.SortedSet;
 
+/**
+ * quick 'n dirty class to do simple interaction with the RMI server/client
+ * @author dmac
+ *
+ */
 public class RMIServerLoadTest {
 
 	public static void main(String[] args) throws IOException {
