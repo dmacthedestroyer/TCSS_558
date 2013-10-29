@@ -4,10 +4,15 @@ TCSS 558: Applied Distributed Computing, Spring 2013
 
 
 Assignment Overview
-
-(Describe your understanding of the purpose and scope of the assignment in 250 words or less. The word count is not strict, so don't worry about going slightly over.)
+The purpose of this project is to gain more familiarity with various API implementations concerning interprocess communication.  In the last project, we worked on a fairly low-level implementation. This project had us build upon our previous TCP implementation, as well as explore a higher-level communication protocol.
+The scope of the assignment involved allowing our previous TCP server to handle multiple concurrent requests, and to learn and implement the same spelling protocol using Java's proprietary RMI technology which, from what I can tell, is a Java version of RPC.
+Other than that, I'm not really sure how all this work plays in with the regular lectures and exams we experience in class.
 
 
 Technical Impression
+For the TCP server, I ported my original server to be runnable within a thread, and leveraged Java's extensive parallel computing library to manage the thread pool.
+For the RMI client and server, I used basic tutorials to construct the most common implementation for this simple project.
 
-(Describe what you have done to complete the assignment in 200-500 words. The word count is not strict, so don't worry about going slightly over. You can share your personal experiences, things that particularly frustrated you about the assignment, things that particularly interested you about the assignment, etc. It is especially important that you document any difficulties you had with tools, Java libraries, etc.)
+The project was slow but relatively smooth.  I did run into the issue of namespacing the provided interface file, which caused issues with the RMI server.
+
+My take on RMI is that it's an old, proprietary technology that may have particular uses in low-level networking purposes between Java applications, but it generally looks like a 90s technology.  .Net's comparable technology, .Net Remoting, has been considered legacy for a number of years now for a more modern framework that abstracts away the lower-level details.
